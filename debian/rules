@@ -61,7 +61,7 @@ clean:
 	-$(MAKE) -k distclean
 	rm -f config.cache config.log config.status
 	rm -f */config.cache */config.log */config.status
-	rm -f conftest* */conftest*
+	rm -f conftest* */conftest* pkg-config-$(TARGET_GNU_TYPE).1
 	rm -rf autom4te.cache */autom4te.cache $(d)
 
 	dh_clean
@@ -89,7 +89,8 @@ binary-arch: build install
 	dh_testroot
 
 	dh_installdocs
-	dh_installman pkg-config.1
+	cp pkg-config.1 pkg-config-$(TARGET_GNU_TYPE).1
+	dh_installman pkg-config-$(TARGET_GNU_TYPE).1
 	dh_installchangelogs ChangeLog
 	dh_link
 	dh_strip
