@@ -1,0 +1,17 @@
+Source: pkg-config
+Section: host-tools
+Priority: optional
+Maintainer: Alexander Shishkin <virtuoso@slind.org>
+Build-Depends: debhelper (>> 4.0), libglib2.0-dev
+Standards-Version: 3.6.1
+
+Package: pkg-config-@ARCH@
+Architecture: any
+Depends: ${shlibs:Depends}, pkg-config
+Description: manage compile and link flags for libraries
+ pkg-config is a system for managing library compile and link flags that 
+ works with automake and autoconf.
+ .
+ Increasingly libraries ship with ".pc" files that allow querying of the
+ compiler and linker flags needed to use them through the pkg-config(1)
+ program.
