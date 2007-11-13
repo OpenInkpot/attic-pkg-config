@@ -25,7 +25,9 @@ DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 TARGET_GNU_TYPE := $(shell dpkg-architecture -f -a$(TARGET) -qDEB_HOST_GNU_TYPE)
 
 p := pkg-config-$(TARGET_GNU_TYPE)
+p_src := pkg-config-source
 d := $(CURDIR)/debian/$(p)
+d_src := $(CURDIR)/debian/$(p_src)
 
 ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
 	confflags += --build=$(DEB_HOST_GNU_TYPE)
@@ -38,9 +40,23 @@ gencontrol:
 		< debian/control.in \
 		> debian/control
 
-build: build-stamp
-build-stamp: gencontrol
+build: build-stamp gencontrol
+build-stamp:
 	dh_testdir
+
+	dh_installdirs -p$(p_src)
+
+	# copy upstream sources
+	for f in *; do \
+		[ "$$f" != "debian" ] && \
+			( tar --exclude='\.svn' -cf - $$f ) | \
+			( cd $(d_src)/usr/src/$(p_src)/; tar xf - ); \
+	done
+
+	# copy debian/ directory
+	for f in debian/{control*,copyright,docs,rules,compat,changelog,pkg-config-source.dirs}; do \
+		cp -a $$f $(d_src)/usr/src/$(p_src)/debian/; \
+	done
 
 	echo "$(TARGET) $(TARGET_GNU_TYPE)"
 	./configure --prefix=/usr --with-installed-glib \
@@ -73,7 +89,6 @@ svnclean: clean
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
 	dh_installdirs usr/$(TARGET_GNU_TYPE)/lib/pkgconfig
 
 	$(MAKE) prefix=$(d)/usr install
